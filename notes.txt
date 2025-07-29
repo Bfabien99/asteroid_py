@@ -1,0 +1,9 @@
+## Modules
+dans python tous les fichiers '.py' sont des Modules. nous pouvons importer des variables, functions, classe de ces modules avec le mot 'import'
+on appelle le fichier sans '.py'
+* from utils import pass_hash # import uniquement pass_hash
+* from utils import * # import tout
+
+## constantes
+Les constantes sont des variables dont la valeur est immuable
+* SCREEN_WIDTH = 1280
