@@ -15,6 +15,11 @@ PLAYER_SHOOT_SPEED = 500
 
 SHOT_RADIUS = 5
 
+# Lives and respawning
+PLAYER_LIVES = 3
+RESPAWN_INVULNERABILITY_TIME = 3.0  # seconds
+RESPAWN_BLINK_RATE = 0.1  # seconds
+
 # Scoring
 ASTEROID_SCORE = {
     1: 100,  # Small asteroid

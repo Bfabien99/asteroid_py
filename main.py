@@ -31,6 +31,7 @@ def main():
 
     dt = 0
     score = 0
+    lives = PLAYER_LIVES
 
     while True:
         for event in pygame.event.get():
@@ -40,9 +41,16 @@ def main():
         updatable.update(dt)
 
         for asteroid in asteroids:
-            if asteroid.collides_with(player):
-                print("Game over!")
-                sys.exit()
+            if asteroid.collides_with(player) and player.invulnerable_timer <= 0:
+                lives -= 1
+                if lives <= 0:
+                    print(f"Game over! Final score: {score}")
+                    sys.exit()
+                else:
+                    # Create explosion for player
+                    Explosion(player.position.x, player.position.y, player.radius)
+                    # Respawn player at center
+                    player.respawn(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
             for shot in shots:
                 if asteroid.collides_with(shot):
@@ -62,6 +70,10 @@ def main():
         # Draw score
         score_text = font.render(f"Score: {score}", True, "white")
         screen.blit(score_text, (10, 10))
+        
+        # Draw lives
+        lives_text = font.render(f"Lives: {lives}", True, "white")
+        screen.blit(lives_text, (10, 50))
 
         pygame.display.flip()
 

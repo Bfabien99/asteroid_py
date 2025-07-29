@@ -9,9 +9,13 @@ class Player(CircleShape):
         super().__init__(x, y, PLAYER_RADIUS)
         self.rotation = 0
         self.shoot_timer = 0
+        self.invulnerable_timer = 0
+        self.blink_timer = 0
+        self.visible = True
 
     def draw(self, screen):
-        pygame.draw.polygon(screen, "white", self.triangle(), 2)
+        if self.visible:
+            pygame.draw.polygon(screen, "white", self.triangle(), 2)
 
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -23,6 +27,17 @@ class Player(CircleShape):
 
     def update(self, dt):
         self.shoot_timer -= dt
+        
+        # Handle invulnerability
+        if self.invulnerable_timer > 0:
+            self.invulnerable_timer -= dt
+            self.blink_timer -= dt
+            if self.blink_timer <= 0:
+                self.visible = not self.visible
+                self.blink_timer = RESPAWN_BLINK_RATE
+        else:
+            self.visible = True
+        
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_UP]:
@@ -50,3 +65,10 @@ class Player(CircleShape):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         self.position += forward * PLAYER_SPEED * dt
         self.wrap_position()
+    
+    def respawn(self, x, y):
+        self.position = pygame.Vector2(x, y)
+        self.velocity = pygame.Vector2(0, 0)
+        self.rotation = 0
+        self.invulnerable_timer = RESPAWN_INVULNERABILITY_TIME
+        self.visible = True
