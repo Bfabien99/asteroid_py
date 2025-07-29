@@ -278,8 +278,8 @@ def main():
                             # Create explosion effect
                             Explosion(asteroid.position.x, asteroid.position.y, asteroid.radius)
                             
-                            # Chance to spawn power-up
-                            if random.random() < POWERUP_SPAWN_CHANCE:
+                            # Chance to spawn power-up (limited to max count)
+                            if random.random() < POWERUP_SPAWN_CHANCE and len(powerups) < POWERUP_MAX_COUNT:
                                 PowerUp(asteroid.position.x, asteroid.position.y)
                             
                             asteroid.split()
@@ -290,7 +290,8 @@ def main():
                         powerup.kill()
                         
                         if powerup.type == "extra_life":
-                            lives += 1
+                            if lives < PLAYER_MAX_LIVES:
+                                lives += 1
                         elif powerup.type == "instant_kill":
                             # Kill all asteroids on screen
                             for asteroid in list(asteroids):
@@ -302,6 +303,18 @@ def main():
                                 asteroid.kill()
                         elif powerup.type == "shield":
                             player.activate_shield()
+                        elif powerup.type == "bomb":
+                            # Instant death
+                            lives = 0
+                            game_over = True
+                            # Create explosion for player
+                            Explosion(player.position.x, player.position.y, player.radius)
+                            # Check if it's a high score
+                            if not score_saved and scoreboard.is_high_score(score):
+                                player_name = get_player_name(screen, font, big_font, clock)
+                                if player_name:
+                                    scoreboard.add_score(player_name, score)
+                                score_saved = True
 
             screen.fill("black")
 

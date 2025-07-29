@@ -18,6 +18,7 @@ SHOT_RADIUS = 5
 
 # Lives and respawning
 PLAYER_LIVES = 3
+PLAYER_MAX_LIVES = 5
 RESPAWN_INVULNERABILITY_TIME = 3.0  # seconds
 RESPAWN_BLINK_RATE = 0.1  # seconds
 
@@ -25,6 +26,7 @@ RESPAWN_BLINK_RATE = 0.1  # seconds
 POWERUP_SPAWN_CHANCE = 0.2  # 20% chance when asteroid is destroyed
 POWERUP_RADIUS = 15
 POWERUP_SPEED = 50
+POWERUP_MAX_COUNT = 3  # Maximum power-ups on screen at once
 SHIELD_DURATION = 10.0  # seconds
 
 # Scoring

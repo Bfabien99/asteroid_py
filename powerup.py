@@ -9,7 +9,7 @@ class PowerUp(CircleShape):
     def __init__(self, x, y):
         super().__init__(x, y, POWERUP_RADIUS)
         # Randomly choose power-up type
-        self.type = random.choice(["extra_life", "instant_kill", "shield"])
+        self.type = random.choice(["extra_life", "instant_kill", "shield", "bomb"])
         
         # Set random velocity
         angle = random.uniform(0, 360)
@@ -38,9 +38,12 @@ class PowerUp(CircleShape):
         elif self.type == "instant_kill":
             color = "red"
             symbol = "X"
-        else:  # shield
+        elif self.type == "shield":
             color = "cyan"
             symbol = "S"
+        else:  # bomb
+            color = "orange"
+            symbol = "B"
         
         # Draw power-up circle
         pygame.draw.circle(screen, color, self.position, radius, 3)
