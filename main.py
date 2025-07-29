@@ -10,19 +10,19 @@ from explosion import Explosion
 
 def reset_game():
     """Reset game state for a new game"""
-    # Clear all sprite groups
-    for group in [sprite for sprite in pygame.sprite.Sprite._sprite_groups]:
-        group.empty()
-    
+    # Create new sprite groups
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
 
+    # Clear any existing containers
     Asteroid.containers = (asteroids, updatable, drawable)
     Shot.containers = (shots, updatable, drawable)
     Explosion.containers = (updatable, drawable)
     AsteroidField.containers = updatable
+    
+    # Create new game objects
     asteroid_field = AsteroidField()
 
     Player.containers = (updatable, drawable)
