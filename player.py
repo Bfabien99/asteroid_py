@@ -14,6 +14,8 @@ class Player(CircleShape):
         self.blink_timer = 0
         self.visible = True
         self.shield_timer = 0
+        self.sound_manager = None
+        self.thrust_playing = False
 
     def draw(self, screen):
         if self.visible:
@@ -70,6 +72,8 @@ class Player(CircleShape):
         self.shoot_timer = PLAYER_SHOOT_COOLDOWN
         shot = Shot(self.position.x, self.position.y)
         shot.velocity = pygame.Vector2(0, 1).rotate(self.rotation) * PLAYER_SHOOT_SPEED
+        if self.sound_manager:
+            self.sound_manager.play_sound('shoot')
 
     def rotate(self, dt):
         self.rotation += PLAYER_TURN_SPEED * dt
@@ -92,3 +96,6 @@ class Player(CircleShape):
         
     def activate_shield(self):
         self.shield_timer = SHIELD_DURATION
+        
+    def set_sound_manager(self, sound_manager):
+        self.sound_manager = sound_manager

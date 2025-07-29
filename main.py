@@ -9,9 +9,10 @@ from shot import Shot
 from explosion import Explosion
 from scoreboard import Scoreboard
 from powerup import PowerUp
+from sound_manager import SoundManager
 
 
-def reset_game():
+def reset_game(sound_manager=None):
     """Reset game state for a new game"""
     # Create new sprite groups
     updatable = pygame.sprite.Group()
@@ -32,11 +33,13 @@ def reset_game():
 
     Player.containers = (updatable, drawable)
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    if sound_manager:
+        player.set_sound_manager(sound_manager)
     
     return updatable, drawable, asteroids, shots, powerups, asteroid_field, player
 
 
-def show_main_menu(screen, font, big_font, clock, scoreboard):
+def show_main_menu(screen, font, big_font, clock, scoreboard, sound_manager):
     """Display main menu and return selected option"""
     selected = 0  # 0 for New Game, 1 for Guide, 2 for Scoreboard
     menu_options = ["new_game", "guide", "scoreboard"]
@@ -48,9 +51,12 @@ def show_main_menu(screen, font, big_font, clock, scoreboard):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
                     selected = (selected - 1) % len(menu_options)
+                    sound_manager.play_sound('menu_select')
                 elif event.key == pygame.K_DOWN:
                     selected = (selected + 1) % len(menu_options)
+                    sound_manager.play_sound('menu_select')
                 elif event.key == pygame.K_RETURN:
+                    sound_manager.play_sound('menu_select')
                     return menu_options[selected]
         
         screen.fill("black")
@@ -293,10 +299,14 @@ def main():
     big_font = pygame.font.Font(None, 72)
     
     scoreboard = Scoreboard()
+    sound_manager = SoundManager()
+    
+    # Start background music
+    sound_manager.play_music()
     
     while True:
         # Show main menu
-        menu_choice = show_main_menu(screen, font, big_font, clock, scoreboard)
+        menu_choice = show_main_menu(screen, font, big_font, clock, scoreboard, sound_manager)
         
         if menu_choice == "exit":
             return
@@ -312,7 +322,7 @@ def main():
             continue
         
         # Start new game
-        updatable, drawable, asteroids, shots, powerups, asteroid_field, player = reset_game()
+        updatable, drawable, asteroids, shots, powerups, asteroid_field, player = reset_game(sound_manager)
 
         dt = 0
         score = 0
@@ -333,13 +343,17 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p and not game_over:
                         paused = not paused
+                        if paused:
+                            sound_manager.pause_music()
+                        else:
+                            sound_manager.unpause_music()
                     elif game_over:
                         if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                             selected_option = 1 - selected_option
                         elif event.key == pygame.K_RETURN:
                             if selected_option == 0:  # Replay
                                 # Reset game directly without returning to menu
-                                updatable, drawable, asteroids, shots, powerups, asteroid_field, player = reset_game()
+                                updatable, drawable, asteroids, shots, powerups, asteroid_field, player = reset_game(sound_manager)
                                 score = 0
                                 lives = PLAYER_LIVES
                                 game_over = False
@@ -381,12 +395,14 @@ def main():
                             score += ASTEROID_SCORE.get(asteroid_kind, 0)
                             # Create explosion effect
                             Explosion(asteroid.position.x, asteroid.position.y, asteroid.radius)
+                            sound_manager.play_sound('explosion')
                             asteroid.split()
                 
                 # Check power-up collisions
                 for powerup in powerups:
                     if powerup.collides_with(player):
                         powerup.kill()
+                        sound_manager.play_sound('powerup')
                         
                         if powerup.type == "extra_life":
                             if lives < PLAYER_MAX_LIVES:
@@ -399,6 +415,7 @@ def main():
                                 score += ASTEROID_SCORE.get(asteroid_kind, 0)
                                 # Create explosion
                                 Explosion(asteroid.position.x, asteroid.position.y, asteroid.radius)
+                                sound_manager.play_sound('explosion')
                                 asteroid.kill()
                         elif powerup.type == "shield":
                             player.activate_shield()
