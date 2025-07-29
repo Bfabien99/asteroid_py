@@ -23,10 +23,11 @@ RESPAWN_INVULNERABILITY_TIME = 3.0  # seconds
 RESPAWN_BLINK_RATE = 0.1  # seconds
 
 # Power-ups
-POWERUP_SPAWN_CHANCE = 0.2  # 20% chance when asteroid is destroyed
 POWERUP_RADIUS = 15
 POWERUP_SPEED = 50
 POWERUP_MAX_COUNT = 3  # Maximum power-ups on screen at once
+POWERUP_SCORE_MIN = 200  # Minimum score increase to spawn power-up
+POWERUP_SCORE_MAX = 1000  # Maximum score increase to spawn power-up
 SHIELD_DURATION = 10.0  # seconds
 
 # Scoring

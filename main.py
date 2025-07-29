@@ -214,6 +214,7 @@ def show_guide(screen, font, big_font, clock):
             "• Destroy asteroids to earn points",
             "• Small asteroids: 100 pts, Medium: 50 pts, Large: 20 pts",
             "• Asteroids split into smaller pieces when shot",
+            "• Power-ups spawn every 200-1000 points earned",
             "• Maximum 20 asteroids and 3 power-ups on screen",
             "• You have 3 lives, respawn with 3s invulnerability",
             "• Game over when all lives are lost"
@@ -320,6 +321,8 @@ def main():
         game_over = False
         score_saved = False
         selected_option = 0  # 0 for Replay, 1 for Menu
+        last_powerup_score = 0  # Track score for power-up spawning
+        next_powerup_threshold = random.randint(POWERUP_SCORE_MIN, POWERUP_SCORE_MAX)
 
         # Game loop
         running = True
@@ -343,6 +346,8 @@ def main():
                                 score_saved = False
                                 paused = False
                                 dt = 0
+                                last_powerup_score = 0
+                                next_powerup_threshold = random.randint(POWERUP_SCORE_MIN, POWERUP_SCORE_MAX)
                             else:  # Menu
                                 running = False  # Exit this game loop to return to menu
 
@@ -376,11 +381,6 @@ def main():
                             score += ASTEROID_SCORE.get(asteroid_kind, 0)
                             # Create explosion effect
                             Explosion(asteroid.position.x, asteroid.position.y, asteroid.radius)
-                            
-                            # Chance to spawn power-up (limited to max count)
-                            if random.random() < POWERUP_SPAWN_CHANCE and len(powerups) < POWERUP_MAX_COUNT:
-                                PowerUp(asteroid.position.x, asteroid.position.y)
-                            
                             asteroid.split()
                 
                 # Check power-up collisions
@@ -414,6 +414,17 @@ def main():
                                 if player_name:
                                     scoreboard.add_score(player_name, score)
                                 score_saved = True
+                
+                # Check if we should spawn a power-up based on score
+                if score >= last_powerup_score + next_powerup_threshold and len(powerups) < POWERUP_MAX_COUNT:
+                    # Spawn power-up at random position
+                    spawn_x = random.randint(50, SCREEN_WIDTH - 50)
+                    spawn_y = random.randint(50, SCREEN_HEIGHT - 50)
+                    PowerUp(spawn_x, spawn_y)
+                    
+                    # Update tracking variables
+                    last_powerup_score = score
+                    next_powerup_threshold = random.randint(POWERUP_SCORE_MIN, POWERUP_SCORE_MAX)
 
             screen.fill("black")
 
