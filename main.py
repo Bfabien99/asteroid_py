@@ -32,35 +32,40 @@ def main():
     dt = 0
     score = 0
     lives = PLAYER_LIVES
+    paused = False
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    paused = not paused
 
-        updatable.update(dt)
+        if not paused:
+            updatable.update(dt)
 
-        for asteroid in asteroids:
-            if asteroid.collides_with(player) and player.invulnerable_timer <= 0:
-                lives -= 1
-                if lives <= 0:
-                    print(f"Game over! Final score: {score}")
-                    sys.exit()
-                else:
-                    # Create explosion for player
-                    Explosion(player.position.x, player.position.y, player.radius)
-                    # Respawn player at center
-                    player.respawn(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+            for asteroid in asteroids:
+                if asteroid.collides_with(player) and player.invulnerable_timer <= 0:
+                    lives -= 1
+                    if lives <= 0:
+                        print(f"Game over! Final score: {score}")
+                        sys.exit()
+                    else:
+                        # Create explosion for player
+                        Explosion(player.position.x, player.position.y, player.radius)
+                        # Respawn player at center
+                        player.respawn(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
-            for shot in shots:
-                if asteroid.collides_with(shot):
-                    shot.kill()
-                    # Calculate score based on asteroid size
-                    asteroid_kind = int(asteroid.radius / ASTEROID_MIN_RADIUS)
-                    score += ASTEROID_SCORE.get(asteroid_kind, 0)
-                    # Create explosion effect
-                    Explosion(asteroid.position.x, asteroid.position.y, asteroid.radius)
-                    asteroid.split()
+                for shot in shots:
+                    if asteroid.collides_with(shot):
+                        shot.kill()
+                        # Calculate score based on asteroid size
+                        asteroid_kind = int(asteroid.radius / ASTEROID_MIN_RADIUS)
+                        score += ASTEROID_SCORE.get(asteroid_kind, 0)
+                        # Create explosion effect
+                        Explosion(asteroid.position.x, asteroid.position.y, asteroid.radius)
+                        asteroid.split()
 
         screen.fill("black")
 
@@ -74,11 +79,20 @@ def main():
         # Draw lives
         lives_text = font.render(f"Lives: {lives}", True, "white")
         screen.blit(lives_text, (10, 50))
+        
+        # Draw pause message
+        if paused:
+            pause_text = font.render("PAUSED - Press P to resume", True, "white")
+            pause_rect = pause_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+            screen.blit(pause_text, pause_rect)
 
         pygame.display.flip()
 
         # limit the framerate to 60 FPS
-        dt = clock.tick(60) / 1000
+        if not paused:
+            dt = clock.tick(60) / 1000
+        else:
+            clock.tick(60)  # Still limit framerate when paused but don't update dt
 
 
 if __name__ == "__main__":
