@@ -14,3 +14,10 @@ PLAYER_SHOOT_COOLDOWN = 0.3  # seconds
 PLAYER_SHOOT_SPEED = 500
 
 SHOT_RADIUS = 5
+
+# Scoring
+ASTEROID_SCORE = {
+    1: 100,  # Small asteroid
+    2: 50,   # Medium asteroid
+    3: 20    # Large asteroid
+}
