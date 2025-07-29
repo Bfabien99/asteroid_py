@@ -41,6 +41,11 @@ class AsteroidField(pygame.sprite.Sprite):
         if self.spawn_timer > ASTEROID_SPAWN_RATE:
             self.spawn_timer = 0
 
+            # Check if we've reached the asteroid limit
+            current_asteroid_count = len([sprite for sprite in Asteroid.containers[0]])
+            if current_asteroid_count >= ASTEROID_MAX_COUNT:
+                return
+
             # spawn a new asteroid at a random edge
             edge = random.choice(self.edges)
             speed = random.randint(40, 100)
