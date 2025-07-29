@@ -45,6 +45,8 @@ class Scoreboard:
     
     def is_high_score(self, score):
         """Check if score qualifies for leaderboard"""
+        if score == 0:
+            return False
         if len(self.scores) < 10:
             return True
         return score > self.scores[-1]["score"] if self.scores else True
