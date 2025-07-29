@@ -21,6 +21,12 @@ PLAYER_LIVES = 3
 RESPAWN_INVULNERABILITY_TIME = 3.0  # seconds
 RESPAWN_BLINK_RATE = 0.1  # seconds
 
+# Power-ups
+POWERUP_SPAWN_CHANCE = 0.2  # 20% chance when asteroid is destroyed
+POWERUP_RADIUS = 15
+POWERUP_SPEED = 50
+SHIELD_DURATION = 10.0  # seconds
+
 # Scoring
 ASTEROID_SCORE = {
     1: 100,  # Small asteroid

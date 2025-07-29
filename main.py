@@ -1,5 +1,6 @@
 import sys
 import pygame
+import random
 from constants import *
 from player import Player
 from asteroid import Asteroid
@@ -7,6 +8,7 @@ from asteroidfield import AsteroidField
 from shot import Shot
 from explosion import Explosion
 from scoreboard import Scoreboard
+from powerup import PowerUp
 
 
 def reset_game():
@@ -16,11 +18,13 @@ def reset_game():
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
     shots = pygame.sprite.Group()
+    powerups = pygame.sprite.Group()
 
     # Clear any existing containers
     Asteroid.containers = (asteroids, updatable, drawable)
     Shot.containers = (shots, updatable, drawable)
     Explosion.containers = (updatable, drawable)
+    PowerUp.containers = (powerups, updatable, drawable)
     AsteroidField.containers = updatable
     
     # Create new game objects
@@ -29,7 +33,7 @@ def reset_game():
     Player.containers = (updatable, drawable)
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     
-    return updatable, drawable, asteroids, shots, asteroid_field, player
+    return updatable, drawable, asteroids, shots, powerups, asteroid_field, player
 
 
 def show_main_menu(screen, font, big_font, clock, scoreboard):
@@ -208,7 +212,7 @@ def main():
             continue
         
         # Start new game
-        updatable, drawable, asteroids, shots, asteroid_field, player = reset_game()
+        updatable, drawable, asteroids, shots, powerups, asteroid_field, player = reset_game()
 
         dt = 0
         score = 0
@@ -233,7 +237,7 @@ def main():
                         elif event.key == pygame.K_RETURN:
                             if selected_option == 0:  # Replay
                                 # Reset game directly without returning to menu
-                                updatable, drawable, asteroids, shots, asteroid_field, player = reset_game()
+                                updatable, drawable, asteroids, shots, powerups, asteroid_field, player = reset_game()
                                 score = 0
                                 lives = PLAYER_LIVES
                                 game_over = False
@@ -247,7 +251,7 @@ def main():
                 updatable.update(dt)
 
                 for asteroid in asteroids:
-                    if asteroid.collides_with(player) and player.invulnerable_timer <= 0:
+                    if asteroid.collides_with(player) and player.invulnerable_timer <= 0 and not player.has_shield():
                         lives -= 1
                         if lives <= 0:
                             game_over = True
@@ -273,7 +277,31 @@ def main():
                             score += ASTEROID_SCORE.get(asteroid_kind, 0)
                             # Create explosion effect
                             Explosion(asteroid.position.x, asteroid.position.y, asteroid.radius)
+                            
+                            # Chance to spawn power-up
+                            if random.random() < POWERUP_SPAWN_CHANCE:
+                                PowerUp(asteroid.position.x, asteroid.position.y)
+                            
                             asteroid.split()
+                
+                # Check power-up collisions
+                for powerup in powerups:
+                    if powerup.collides_with(player):
+                        powerup.kill()
+                        
+                        if powerup.type == "extra_life":
+                            lives += 1
+                        elif powerup.type == "instant_kill":
+                            # Kill all asteroids on screen
+                            for asteroid in list(asteroids):
+                                # Calculate score
+                                asteroid_kind = int(asteroid.radius / ASTEROID_MIN_RADIUS)
+                                score += ASTEROID_SCORE.get(asteroid_kind, 0)
+                                # Create explosion
+                                Explosion(asteroid.position.x, asteroid.position.y, asteroid.radius)
+                                asteroid.kill()
+                        elif powerup.type == "shield":
+                            player.activate_shield()
 
             screen.fill("black")
 
@@ -287,6 +315,11 @@ def main():
             # Draw lives
             lives_text = font.render(f"Lives: {lives}", True, "white")
             screen.blit(lives_text, (10, 50))
+            
+            # Draw shield timer if active
+            if player.shield_timer > 0:
+                shield_text = font.render(f"Shield: {player.shield_timer:.1f}s", True, "cyan")
+                screen.blit(shield_text, (10, 90))
         
             # Draw pause message
             if paused and not game_over:

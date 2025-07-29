@@ -1,4 +1,5 @@
 import pygame
+import math
 from constants import *
 from circleshape import CircleShape
 from shot import Shot
@@ -12,10 +13,18 @@ class Player(CircleShape):
         self.invulnerable_timer = 0
         self.blink_timer = 0
         self.visible = True
+        self.shield_timer = 0
 
     def draw(self, screen):
         if self.visible:
             pygame.draw.polygon(screen, "white", self.triangle(), 2)
+            
+        # Draw shield if active
+        if self.shield_timer > 0:
+            # Animated shield effect
+            shield_alpha = abs(math.sin(pygame.time.get_ticks() * 0.005)) * 0.5 + 0.5
+            pygame.draw.circle(screen, "cyan", self.position, self.radius + 10, 2)
+            pygame.draw.circle(screen, "cyan", self.position, self.radius + 15, 1)
 
     def triangle(self):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
@@ -27,6 +36,10 @@ class Player(CircleShape):
 
     def update(self, dt):
         self.shoot_timer -= dt
+        
+        # Handle shield timer
+        if self.shield_timer > 0:
+            self.shield_timer -= dt
         
         # Handle invulnerability
         if self.invulnerable_timer > 0:
@@ -72,3 +85,10 @@ class Player(CircleShape):
         self.rotation = 0
         self.invulnerable_timer = RESPAWN_INVULNERABILITY_TIME
         self.visible = True
+        self.shield_timer = 0  # Reset shield on respawn
+        
+    def has_shield(self):
+        return self.shield_timer > 0
+        
+    def activate_shield(self):
+        self.shield_timer = SHIELD_DURATION
