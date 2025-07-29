@@ -232,7 +232,14 @@ def main():
                             selected_option = 1 - selected_option
                         elif event.key == pygame.K_RETURN:
                             if selected_option == 0:  # Replay
-                                running = False  # Exit this game loop to return to menu
+                                # Reset game directly without returning to menu
+                                updatable, drawable, asteroids, shots, asteroid_field, player = reset_game()
+                                score = 0
+                                lives = PLAYER_LIVES
+                                game_over = False
+                                score_saved = False
+                                paused = False
+                                dt = 0
                             else:  # Menu
                                 running = False  # Exit this game loop to return to menu
 
